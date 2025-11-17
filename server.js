@@ -1,0 +1,34 @@
+import express from "express";
+import cors from "cors";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// 🔥 Render에서 자동으로 PORT를 지정함 (절대 3000/5000 고정 X)
+const PORT = process.env.PORT || 5000;
+
+// 테스트용 기본 라우트
+app.get("/", (req, res) => {
+  res.send("Moontwo Server Running!");
+});
+
+// 📌 아임웹 상담 예약 수신 엔드포인트
+app.post("/submit", async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  if (!phoneNumber) {
+    return res.status(400).json({ success: false, error: "전화번호가 없습니다." });
+  }
+
+  console.log("📩 상담 신청 접수:", phoneNumber);
+
+  // ⚠ 여기서 카카오톡 전송 로직 들어갈 예정
+  // 현재는 정상 응답만 테스트
+  return res.json({ success: true });
+});
+
+// 서버 실행
+app.listen(PORT, () => {
+  console.log(`🚀 Moontwo Server Running On PORT: ${PORT}`);
+});
