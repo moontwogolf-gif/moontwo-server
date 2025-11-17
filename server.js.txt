@@ -1,47 +1,34 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
+import express from "express";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-// 데이터 폴더 생성
-const dataDir = path.join(__dirname, "data");
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+// 🔥 Render에서 자동으로 PORT를 지정함 (절대 3000/5000 고정 X)
+const PORT = process.env.PORT || 5000;
 
-// 메시지 저장 파일 생성
-const messagesFile = path.join(dataDir, "messages.json");
-if (!fs.existsSync(messagesFile)) {
-    fs.writeFileSync(messagesFile, "[]", "utf8");
-}
-
-// 기본 테스트 엔드포인트
+// 테스트용 기본 라우트
 app.get("/", (req, res) => {
-    res.send("M2Net Server Running");
+  res.send("Moontwo Server Running!");
 });
 
-// OAuth 테스트 엔드포인트
-app.get("/oauth", (req, res) => {
-    res.send("OAuth endpoint active");
+// 📌 아임웹 상담 예약 수신 엔드포인트
+app.post("/submit", async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  if (!phoneNumber) {
+    return res.status(400).json({ success: false, error: "전화번호가 없습니다." });
+  }
+
+  console.log("📩 상담 신청 접수:", phoneNumber);
+
+  // ⚠ 여기서 카카오톡 전송 로직 들어갈 예정
+  // 현재는 정상 응답만 테스트
+  return res.json({ success: true });
 });
 
-// AJAX로 전화번호 받기
-app.post("/submit", (req, res) => {
-    const { phoneNumber } = req.body;
-
-    if (!phoneNumber) {
-        return res.json({ success: false, error: "전화번호 없음" });
-    }
-
-    const list = JSON.parse(fs.readFileSync(messagesFile, "utf8"));
-    list.push({ phone: phoneNumber, date: new Date().toISOString() });
-    fs.writeFileSync(messagesFile, JSON.stringify(list, null, 2));
-
-    res.json({ success: true });
-});
-
-// Render Port
-const PORT = process.env.PORT || 3000;
+// 서버 실행
 app.listen(PORT, () => {
-    console.log("🚀 M2Net 서버 실행:", PORT);
+  console.log(`🚀 Moontwo Server Running On PORT: ${PORT}`);
 });
